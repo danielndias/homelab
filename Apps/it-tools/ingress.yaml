@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: it-tools-ingress
+  labels:
+    app: it-tools
+  namespace: it-tools
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use cert-manager for TLS
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"    # Increase max upload size
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - it-tools.dassidias.com
+    secretName: it-tools-tls  # Secret where TLS cert will be stored
+  rules:
+  - host: it-tools.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: it-tools-service  # Route to this service
+            port:
+              number: 80                 # Service port to route to
+---
