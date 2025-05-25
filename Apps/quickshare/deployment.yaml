@@ -1,0 +1,47 @@
+# docker run -d --name quickshare -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083  quickshare/quickshare-enterprise:5.9.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: quickshare
+  name: quickshare
+  namespace: quickshare
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quickshare
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: quickshare
+    spec:
+      
+      containers:
+        - env:
+          - name: "DEFAULTADMIN"
+            valueFrom:
+              secretKeyRef:
+                key: username
+                name: quickshare-credentials
+          - name: "DEFAULTADMINPWD"
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: quickshare-credentials
+          image: hexxa/quickshare
+          name: quickshare
+          ports:
+            - containerPort: 8686
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /quickshare/root
+              name: quickshare-pvc
+      restartPolicy: Always
+      volumes:
+        - name: quickshare-pvc
+          persistentVolumeClaim:
+            claimName: quickshare-claim
