@@ -1,0 +1,56 @@
+
+
+# Deployment for the audiobookshelf application
+# Runs two replicas for high availability
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audiobookshelf
+  namespace: audiobookshelf
+spec:
+  replicas: 2  # Number of pod replicas
+  selector:
+    matchLabels:
+      app: audiobookshelf
+  strategy:
+    type: Recreate  # Ensures only one version runs at a time
+  template:
+    metadata:
+      labels:
+        app: audiobookshelf
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: America/Edmonton  # Set timezone for the container
+          image: ghcr.io/advplyr/audiobookshelf:latest  # Main app image
+          name: audiobookshelf
+          ports:
+            - containerPort: 80  # Expose port 80 inside the container
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /mnt/Audiobook   # Mount audiobooks PVC to this path
+              name: audiobookshelf-claim-audiobooks
+            - mountPath: /mnt/podcasts     # Mount podcasts PVC to this path
+              name: audiobookshelf-claim-podcasts
+            - mountPath: /config       # Mount config PVC to this path
+              name: audiobookshelf-claim-config
+            - mountPath: /metadata     # Mount metadata PVC to this path
+              name: audiobookshelf-claim-metadata
+      restartPolicy: Always
+      volumes:
+        - name: audiobookshelf-claim-audiobooks
+          persistentVolumeClaim:
+            claimName: audiobookshelf-claim-audiobooks
+        - name: audiobookshelf-claim-podcasts
+          emptyDir:
+            sizeLimit: 500Mi
+        - name: audiobookshelf-claim-config
+          persistentVolumeClaim:
+            claimName: audiobookshelf-claim-config
+        - name: audiobookshelf-claim-metadata
+          persistentVolumeClaim:
+            claimName: audiobookshelf-claim-metadata
+
+

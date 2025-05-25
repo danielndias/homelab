@@ -1,0 +1,17 @@
+# Service to expose the audiobookshelf deployment inside the cluster
+# Maps port 13378 to container port 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: audiobookshelf
+  name: audiobookshelf-service
+  namespace: audiobookshelf
+spec:
+  ports:
+    - name: "13378"
+      port: 13378      # Service port exposed inside the cluster
+      targetPort: 80   # Target port on the pod/container
+  selector:
+    app: audiobookshelf
