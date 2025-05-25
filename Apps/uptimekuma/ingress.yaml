@@ -1,0 +1,30 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: uptime-kuma-ingress
+  labels:
+    app: uptime-kuma
+  namespace: uptime-kuma
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use cert-manager for TLS
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"    # Increase max upload size
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - uptime.dassidias.com
+    secretName: uptime-kuma-tls  # Secret where TLS cert will be stored
+  rules:
+  - host: uptime.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: uptime-kuma-service  # Route to this service
+            port:
+              number: 80                 # Service port to route to
+---
