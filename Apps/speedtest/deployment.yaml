@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speedtest-tracker
+  namespace: speedtest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speedtest-tracker
+  template:
+    metadata:
+      labels:
+        app: speedtest-tracker
+    spec:
+      dnsPolicy: None
+      dnsConfig:
+        nameservers:
+          - 192.168.1.65
+          - 8.8.8.8
+        searches:
+          - speedtest-tracker.svc.cluster.local
+        options:
+          - name: ndots
+            value: "5"
+      containers:
+        - name: speedtest-tracker
+          image: lscr.io/linuxserver/speedtest-tracker:latest
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: speeptest-conf
+                  key: apiKey
+            - name: DISPLAY_TIMEZONE
+              value: MDT
+            - name: ADMIN_NAME
+              value: "Admin"
+            - name: ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: speeptest-conf
+                  key: email
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: speeptest-conf
+                  key: password
+            # - name: DB_CONNECTION
+            #   value: pgsql
+            # - name: DB_HOST
+            #   value: postgres
+            # - name: DB_PORT
+            #   value: "5432"
+            # - name: DB_DATABASE
+            #   value: speedtest_tracker
+            # - name: DB_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: speedtest-confß
+            #       key: db_username
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: speedtest-conf
+            #       key: db_pass
+            - name: SPEEDTEST_SCHEDULE
+              value: "0 * * * *"
+            - name: SPEEDTEST_SERVERS
+              value: "4392,17555,32632,17394,22138"
+            - name: APP_DEBUG
+              value: "true"
+          volumeMounts:
+            - mountPath: /config
+              name: speedtest-tracker
+      volumes:
+        - name: speedtest-tracker
+          persistentVolumeClaim:
+            claimName: speedtest-tracker
