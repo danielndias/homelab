@@ -1,0 +1,60 @@
+
+
+# Ingress to expose navidrome externally with TLS
+# Uses cert-manager for automatic Let's Encrypt certificates
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: navidrome-ingress
+  labels:
+    app: navidrome
+  namespace: navidrome
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use cert-manager for TLS
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"    # Increase max upload size
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - music.dassidias.com
+    secretName: navidrome-tls  # Secret where TLS cert will be stored
+  rules:
+  - host: music.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: navidrome-service  # Route to this service
+            port:
+              number: 80                 # Service port to route to
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: navidrome-external-ingress
+  labels:
+    app: navidrome
+  namespace: navidrome
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"    # Increase max upload size
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    external-dns.alpha.kubernetes.io/hostname: music.danieldias.ca
+    external-dns.alpha.kubernetes.io/target: 5d3e9d90-1f75-4817-b2a9-0bb2b5a5844e.cfargotunnel.com
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: music.danieldias.ca
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: navidrome-service  # Route to this service
+            port:
+              number: 80                 # Service port to route to

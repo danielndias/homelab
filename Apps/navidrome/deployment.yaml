@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: navidrome
+  name: navidrome
+  namespace: navidrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: navidrome
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: navidrome
+    spec:
+      containers:
+        - image: deluan/navidrome:latest
+          name: navidrome
+          ports:
+            - containerPort: 4533
+              protocol: TCP
+          securityContext:
+            runAsGroup: 1000
+            runAsUser: 1000
+            runAsNonRoot: true
+            # readOnlyRootFilesystem: true
+            privileged: false
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - mountPath: /data
+              name: data-volume
+            - mountPath: /music
+              name: music-volume
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: navidrome-claim-data
+        - name: music-volume
+          persistentVolumeClaim:
+            claimName: navidrome-claim-music
+            readOnly: true
