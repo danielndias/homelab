@@ -1,0 +1,54 @@
+# docker run -d --restart=always -p 3001:3001 -v stirling-pdf:/app/data --name stirling-pdf louislam/stirling-pdf:1
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: stirling-pdf
+  name: stirling-pdf
+  namespace: stirling-pdf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stirling-pdf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: stirling-pdf
+    spec:
+      containers:
+        - image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:latest
+          env:
+            - name: DOCKER_ENABLE_SECURITY
+              value: "false"
+            - name: LANGS
+              value: "en_GB"
+          name: stirling-pdf
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/share/tessdata
+              name: pdf-data
+              subPath: tessdata
+            - mountPath: /configs
+              name: pdf-data
+              subPath: configs
+            - mountPath: /customFiles/
+              name: pdf-data
+              subPath: customFiles
+            - mountPath: /logs
+              name: pdf-data
+              subPath: logs
+            - mountPath: /pipeline
+              name: pdf-data
+              subPath: pipeline
+      restartPolicy: Always
+      volumes:
+        - name: pdf-data
+          persistentVolumeClaim:
+            claimName: stirling-pdf-claim
