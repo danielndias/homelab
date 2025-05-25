@@ -1,0 +1,29 @@
+# docker run -d --restart=always -p 3001:3001 -v whoogle:/app/data --name whoogle louislam/whoogle:1
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: whoogle
+  name: whoogle
+  namespace: whoogle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoogle
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: whoogle
+    spec:
+      containers:
+        - image: benbusby/whoogle-search:latest
+          name: whoogle
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+      restartPolicy: Always
