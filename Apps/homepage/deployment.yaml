@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: homepage
+  name: homepage
+  namespace: homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+        - env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.dassidias.com
+            - name: PGID
+              value: "1000"
+            - name: PUID
+              value: "1000"
+          image: ghcr.io/gethomepage/homepage:latest
+          name: homepage
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/config
+              name: homepage-app-config-volume
+      restartPolicy: Always
+      volumes:
+        - name: homepage-app-config-volume
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Home/App_Config/homepage
+            readOnly: false
