@@ -1,0 +1,47 @@
+# docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083  emqx/emqx-enterprise:5.9.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: emqx
+  name: emqx
+  namespace: emqx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emqx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: emqx
+    spec:
+      containers:
+        - image: emqx/emqx-enterprise:5.9.0
+          name: emqx
+          ports:
+            - containerPort: 1883
+              protocol: TCP
+            - containerPort: 8083
+              protocol: TCP
+            - containerPort: 8084
+              protocol: TCP
+            - containerPort: 8883
+              protocol: TCP
+            - containerPort: 18083
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /opt/emqx/data
+              name: emqx-data
+              subPath: data
+            - mountPath: /opt/emqx/log
+              name: emqx-data
+              subPath: log
+      restartPolicy: Always
+      volumes:
+        - name: emqx-data
+          persistentVolumeClaim:
+            claimName: emqx-claim

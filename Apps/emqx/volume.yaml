@@ -1,0 +1,15 @@
+# PersistentVolumeClaim for application configuration
+# Stores app config files (settings, etc.)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: emqx-claim
+  namespace: emqx
+spec:
+  storageClassName: freenas-nfs-csi
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
