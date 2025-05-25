@@ -9,7 +9,7 @@ metadata:
   name: audiobookshelf
   namespace: audiobookshelf
 spec:
-  replicas: 2  # Number of pod replicas
+  replicas: 1  # Number of pod replicas
   selector:
     matchLabels:
       app: audiobookshelf
