@@ -1,0 +1,32 @@
+# PersistentVolumeClaim for application configuration
+# Stores app config files (settings, etc.)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mkvtoolnix-claim-config
+  namespace: mkvtoolnix
+spec:
+  storageClassName: freenas-nfs-csi
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+# PersistentVolumeClaim for storage
+# This PVC will be used to store MKVToolNix files
+# This is where the MKVToolNix app will store its data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mkvtoolnix-claim-storage
+  namespace: mkvtoolnix
+spec:
+  storageClassName: freenas-nfs-csi
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mkvtoolnix
+  name: mkvtoolnix
+  namespace: mkvtoolnix
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mkvtoolnix
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mkvtoolnix
+    spec:
+      containers:
+        - image: jlesage/mkvtoolnix
+          name: mkvtoolnix
+          ports:
+            - containerPort: 5800
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config       # Mount config PVC to this path
+              name: config
+            - mountPath: /storage     # Mount storage PVC to this path
+              name: downloads-volume
+      restartPolicy: Always
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: mkvtoolnix-claim-config
+        - name: downloads-volume
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Fast/Download
+            readOnly: false
