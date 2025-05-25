@@ -1,0 +1,38 @@
+# docker run -d --restart=always -p 3001:3001 -v readeck:/app/data --name readeck louislam/readeck:1
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: readeck
+  name: readeck
+  namespace: readeck
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: readeck
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: readeck
+    spec:
+      containers:
+        - image: codeberg.org/readeck/readeck:latest
+          name: readeck
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /readeck
+              name: readeck-app-data-volume
+      restartPolicy: Always
+      volumes:
+        - name: readeck-app-data-volume
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Home/Config/readeck
+            readOnly: false
