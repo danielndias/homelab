@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: qbittorrent-service
+  namespace: external-services
+subsets:
+  - addresses:
+      - ip: 192.168.1.56
+    ports:
+      - port: 8080

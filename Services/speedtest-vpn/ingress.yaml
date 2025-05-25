@@ -1,0 +1,26 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: speedtest-vpn-ingress
+  namespace: external-services
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - speedtest-vpn.dassidias.com
+    secretName: speedtest-vpn-tls
+  rules:  
+  - host: speedtest-vpn.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: speedtest-vpn-service
+            port:
+              number: 80
