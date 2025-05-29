@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: calibre
+  name: calibre
+  namespace: calibre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calibre
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: calibre
+    spec:
+      containers:
+        - image: lscr.io/linuxserver/calibre:latest
+          name: calibre
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8081
+              protocol: TCP
+            - containerPort: 8181
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config       # Mount config PVC to this path
+              name: calibre-config
+            - mountPath: /ebooks     # Mount storage PVC to this path
+              name: ebooks-volume
+      restartPolicy: Always
+      volumes:
+        - name: calibre-config
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Home/App_Config/calibre
+            readOnly: false
+        - name: ebooks-volume
+          persistentVolumeClaim:
+            claimName: calibre-ebooks-pvc
