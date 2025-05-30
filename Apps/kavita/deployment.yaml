@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kavita
+  name: kavita
+  namespace: kavita
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kavita
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: kavita
+    spec:
+      containers:
+        - image: jvmilazz0/kavita:latest
+          name: kavita
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config       # Mount config PVC to this path
+              name: kavita-config
+            - mountPath: /ebooks     # Mount storage PVC to this path
+              name: hqs-volume
+      restartPolicy: Always
+      volumes:
+        - name: kavita-config
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Home/App_Config/kavita
+            readOnly: false
+        - name: hqs-volume
+          persistentVolumeClaim:
+            claimName: kavita-hqs-pvc
