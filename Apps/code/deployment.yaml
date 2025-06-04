@@ -1,0 +1,53 @@
+# docker run -d --restart=always -p 3001:3001 -v code:/app/data --name code louislam/code:1
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: code
+  name: code
+  namespace: code
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: code
+    spec:
+      containers:
+        - image: lscr.io/linuxserver/code-server:latest
+          name: code
+          env:
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: code-password
+                  key: password
+            - name: TZ
+              value: Etc/MDT
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: DEFAULT_WORKSPACE
+              value: "/config/workspace"
+          ports:
+            - containerPort: 8443
+              protocol: TCP
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - mountPath: /config
+              name: code-claim
+      restartPolicy: Always
+      volumes:
+        - name: code-claim
+          persistentVolumeClaim:
+            claimName: code-claim
