@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n8n-ingress
+  labels:
+    app: n8n
+  namespace: n8n
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use cert-manager for TLS
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"    # Increase max upload size
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - n8n.dassidias.com
+    secretName: n8n-tls  # Secret where TLS cert will be stored
+  rules:
+  - host: n8n.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: n8n-service  # Route to this service
+            port:
+              number: 5678                 # Service port to route to
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: n8n-external-ingress
+  labels:
+    service: n8n
+  namespace: n8n
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"    # Increase max upload size
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    external-dns.alpha.kubernetes.io/hostname: n8n.danieldias.ca
+    external-dns.alpha.kubernetes.io/target: 5d3e9d90-1f75-4817-b2a9-0bb2b5a5844e.cfargotunnel.com
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: n8n.danieldias.ca
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: n8n-service  # Route to this service
+            port:
+              number: 5678                 # Service port to route to
