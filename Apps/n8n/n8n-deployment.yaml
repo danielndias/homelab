@@ -51,12 +51,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: postgres-secret
-                key: POSTGRES_USER
+                key: POSTGRES_NON_ROOT_USER
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: postgres-secret
-                key: POSTGRES_PASSWORD
+                key: POSTGRES_NON_ROOT_PASSWORD
           - name: GENERIC_TIMEZONE
             value: America/Edmonton
           - name: N8N_HOST
