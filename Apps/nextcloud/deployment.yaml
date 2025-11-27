@@ -30,7 +30,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /data  
-              name: nextcloud-claim-data
+              name: homepage-app-config-data
             - mountPath: /config      
               name: homepage-app-config-volume
       restartPolicy: Always
