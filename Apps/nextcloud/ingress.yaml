@@ -1,0 +1,60 @@
+
+
+# Ingress to expose nextcloud externally with TLS
+# Uses cert-manager for automatic Let's Encrypt certificates
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud-ingress
+  labels:
+    app: nextcloud
+  namespace: nextcloud
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Use cert-manager for TLS
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"    # Increase max upload size
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - storage.dassidias.com
+    secretName: nextcloud-tls  # Secret where TLS cert will be stored
+  rules:
+  - host: storage.dassidias.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nextcloud-service  # Route to this service
+            port:
+              number: 443                 # Service port to route to
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextcloud-external-ingress
+  labels:
+    app: nextcloud
+  namespace: nextcloud
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /        # Rewrite all paths to root
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"    # Increase max upload size
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    external-dns.alpha.kubernetes.io/hostname: storage.danieldias.ca
+    external-dns.alpha.kubernetes.io/target: 5d3e9d90-1f75-4817-b2a9-0bb2b5a5844e.cfargotunnel.com
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: storage.danieldias.ca
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nextcloud-service  # Route to this service
+            port:
+              number: 443                 # Service port to route to

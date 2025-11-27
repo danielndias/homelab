@@ -1,0 +1,18 @@
+# Service to expose the nextcloud deployment inside the cluster
+# Maps port 13378 to container port 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nextcloud
+  name: nextcloud-service
+  namespace: nextcloud
+spec:
+  ports:
+    - name: "443"
+      port: 443      # Service port exposed inside the cluster
+      targetPort: 443   # Target port on the pod/container
+  selector:
+    app: nextcloud
+  #type: LoadBalancer
