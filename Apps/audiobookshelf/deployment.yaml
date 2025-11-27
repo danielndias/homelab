@@ -24,7 +24,7 @@ spec:
         - env:
             - name: TZ
               value: America/Edmonton  # Set timezone for the container
-          image: ghcr.io/advplyr/audiobookshelf:2.29.0  # Main app image
+          image: ghcr.io/advplyr/audiobookshelf:2.30.0  # Main app image
           name: audiobookshelf
           ports:
             - containerPort: 80  # Expose port 80 inside the container
