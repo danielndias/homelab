@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+  namespace: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - image: postgres:11
+          name: postgres
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4Gi
+            requests:
+              cpu: "1"
+              memory: 2Gi
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-config
+              mountPath: /var/lib/postgresql/data
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata      
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_NON_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_USER
+            - name: POSTGRES_NON_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_NON_ROOT_PASSWORD
+            - name:   POSTGRES_HOST
+              value: postgres-service
+            - name: POSTGRES_PORT
+              value: '5432'
+          ports:
+            - containerPort: 5432
+      restartPolicy: Always
+      volumes:
+        - name: postgres-config
+          nfs:
+            server: 192.168.1.52
+            path: /mnt/Home/App_Config/postgres
+            readOnly: false
