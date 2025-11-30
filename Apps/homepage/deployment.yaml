@@ -33,6 +33,7 @@ spec:
           volumeMounts:
             - mountPath: /app/config
               name: homepage-app-config-volume
+      serviceAccountName: node-info-sa
       restartPolicy: Always
       volumes:
         - name: homepage-app-config-volume
