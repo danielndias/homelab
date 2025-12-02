@@ -59,6 +59,8 @@ spec:
                 key: POSTGRES_NON_ROOT_PASSWORD
           - name: GENERIC_TIMEZONE
             value: America/Edmonton
+          - name: WEBHOOK_URL
+            value: https://n8n.danieldias.ca
           - name: N8N_HOST
             value: n8n.danieldias.ca
           - name: N8N_PORT
