@@ -47,6 +47,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: portainer-service
+            name: portainer-test-service
             port:
               number: 80
